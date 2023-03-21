@@ -27,11 +27,7 @@ public class Walk {
     private static ArrayList<String> readFile(String fileName) {
         ArrayList<String> output = new ArrayList<>();
         File file = new File(fileName);
-        try {
-            file.createNewFile();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
+        if (!file.canRead()) {
             return output;
         }
         try (BufferedReader bufferedReader = newBufferedReader(Path.of(fileName), StandardCharsets.UTF_8)) {
