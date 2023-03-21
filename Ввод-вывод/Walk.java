@@ -49,23 +49,30 @@ public class Walk {
                 Files.createDirectories(outputPath.getParent());
             }
         } catch (IOException e) {
-            throw new WalkException("Fail make dirs", e);
+            throw new WalkException("Fail make dirs: " + e.getMessage(), e);
         }
-
+        
         try (BufferedReader bufferedReader = Files.newBufferedReader(inputPath, StandardCharsets.UTF_8)) {
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {
                 String file_path;
-                // :NOTE: bufferedReader.readLine() error message
-                while ((file_path = bufferedReader.readLine()) != null) {
-                    byte[] hash = hashigFile(file_path);
-                    bufferedWriter.write(convertHash(hash) + " " + file_path);
-                    bufferedWriter.newLine();
+                try {
+                    while ((file_path = bufferedReader.readLine()) != null) {
+                        byte[] hash = hashingFile(file_path);
+                        try {
+                            bufferedWriter.write(convertHash(hash) + " " + file_path);
+                            bufferedWriter.newLine();
+                        } catch (IOException e) {
+                            throw new WalkException("Fail write output file: " + e.getMessage(), e);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new WalkException("Fail read file:" + e.getMessage(), e);
                 }
             } catch (IOException e) {
-                System.err.println("Fail write output file:" + e.getMessage());
+                throw new WalkException("Fail open output file:" + e.getMessage(), e);
             }
         } catch (IOException e) {
-            System.err.println("Fail open input file: " + e.getMessage());
+            throw new WalkException("Fail open input file: " + e.getMessage(), e);
         }
     }
 
@@ -77,7 +84,7 @@ public class Walk {
         }
     }
 
-    private byte[] hashigFile(String fileName) {
+    private byte[] hashingFile(String fileName) {
         Path path;
         try {
             path = getPath(fileName, "");
