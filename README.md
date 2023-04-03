@@ -1,6 +1,5 @@
 # Курс технологии Java
-Актуальная страница [курса](https://www.kgeorgiy.info/courses/java-advanced/index.html)
-Лекции на [ютюбе](https://youtube.com/playlist?list=PLBAwg87wLtfI11gzB1dR6n705sC7zGvFW)
+Актуальная страница [курса](https://www.kgeorgiy.info/courses/java-advanced/index.html) | Лекции на [ютюбе](https://youtube.com/playlist?list=PLBAwg87wLtfI11gzB1dR6n705sC7zGvFW)
 #### Часть 1. Введение
 1. Ввод-вывод
 2. Collections Framework	
