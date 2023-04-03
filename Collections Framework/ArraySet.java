@@ -25,7 +25,7 @@ public class ArraySet<E> implements SortedSet<E> {
     }
 
     public ArraySet(SortedSet<E> c) {
-        TreeSet<E> set = new TreeSet<>(c.comparator());
+        TreeSet<E> set = new TreeSet<>(c);
         this.elementData = new ArrayList<>(set);
         this.capacity = set.size();
         this.comparator = set.comparator();
