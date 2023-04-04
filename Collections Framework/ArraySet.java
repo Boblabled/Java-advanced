@@ -4,29 +4,31 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
     private final List<E> elementData;
     private final Comparator<? super E> comparator;
 
-    @SuppressWarnings("unchecked")
     public ArraySet() {
-        this(Collections.EMPTY_LIST);
+        this(List.of());
     }
 
     public ArraySet(Collection<? extends E> c) {
-        this(toList(c, null), null);
+        this(c, null);
+    }
+
+    public ArraySet(Comparator<E> c) {
+        this(List.of(), c);
     }
 
     public ArraySet(Collection<? extends E> c, Comparator<? super E> co) {
-        this.elementData = toList(c, co);
-        this.comparator = co;
+        this(toList(c, co), co);
     }
 
-    @SuppressWarnings("unchecked")
-    public ArraySet(Comparator<E> c) {
-        this(toList(Collections.EMPTY_LIST, c), c);
+    private ArraySet(List<E> data, Comparator<? super E> c) {
+        this.elementData = data;
+        this.comparator = c;
     }
 
-    private static <E> ArrayList<E> toList(Collection<? extends E> c, Comparator<? super E> co) {
+    private static <E> List<E> toList(Collection<? extends E> c, Comparator<? super E> co) {
         TreeSet<E> set = new TreeSet<>(co);
         set.addAll(c);
-        return new ArrayList<>(set);
+        return List.copyOf(set);
     }
 
     @Override
@@ -42,10 +44,7 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         if (comparator.compare(fromElement, toElement) > 0) {
             throw new IllegalArgumentException();
         }
-        TreeSet<E> tailSet = (TreeSet<E>) tailSet(fromElement);
-        TreeSet<E> headSet = (TreeSet<E>) headSet(toElement);
-        tailSet.retainAll(headSet);
-        return tailSet;
+        return tailSet(fromElement).headSet(toElement);
     }
 
     @Override
@@ -55,9 +54,9 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         }
         int to = Collections.binarySearch(elementData, toElement, comparator);
         if (to < 0) {
-            to = -1 * to - 1;
+            to = -to - 1;
         }
-        return new TreeSet<>(elementData.subList(0, to));
+        return new ArraySet<>(elementData.subList(0, to), comparator);
     }
 
     @Override
@@ -67,9 +66,9 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         }
         int from = Collections.binarySearch(elementData, fromElement, comparator);
         if (from < 0) {
-            from = -1 * from - 1;
+            from = -from - 1;
         }
-        return new TreeSet<>(elementData.subList(from, elementData.size()));
+        return new ArraySet<>(elementData.subList(from, elementData.size()), comparator);
     }
 
     @Override
