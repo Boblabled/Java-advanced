@@ -1,34 +1,26 @@
 import java.util.*;
 
-// :NOTE: AbstractSet
 public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
     private final List<E> elementData;
     private final Comparator<? super E> comparator;
 
+    @SuppressWarnings("unchecked")
     public ArraySet() {
         this(Collections.EMPTY_LIST);
     }
 
-    // :NOTE: duplicate code
     public ArraySet(Collection<? extends E> c) {
-        TreeSet<E> set = new TreeSet<>(c);
-        this.elementData = new ArrayList<>(set);
-        this.comparator = null;
+        this(toList(c, null), null);
     }
 
     public ArraySet(Collection<? extends E> c, Comparator<? super E> co) {
-        this(toList(c, co), co);
+        this.elementData = toList(c, co);
+        this.comparator = co;
     }
 
+    @SuppressWarnings("unchecked")
     public ArraySet(Comparator<E> c) {
-        TreeSet<E> set = new TreeSet<>(c);
-        this.elementData = new ArrayList<>(set);
-        this.comparator = set.comparator();
-    }
-
-    private ArraySet(List<E> data, Comparator<? super E> c) {
-        this.elementData = data;
-        this.comparator = c;
+        this(toList(Collections.EMPTY_LIST, c), c);
     }
 
     private static <E> ArrayList<E> toList(Collection<? extends E> c, Comparator<? super E> co) {
@@ -42,7 +34,6 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         return comparator;
     }
 
-    // :NOTE: duplicate code
     @Override
     public SortedSet<E> subSet(E fromElement, E toElement) {
         if (comparator == null) {
@@ -51,24 +42,10 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         if (comparator.compare(fromElement, toElement) > 0) {
             throw new IllegalArgumentException();
         }
-
-        // 1. Коллекция уже отсортирована
-        // 2. Коллекция не изменяемая
-        TreeSet<E> subset = new TreeSet<>(comparator);
-        int from = elementData.size();
-        for (int i = 0; i < elementData.size(); i++) {
-            if (comparator.compare(fromElement, elementData.get(i)) <= 0) {
-                from = i;
-                break;
-            }
-        }
-        for (int i = from; i < elementData.size(); i++) {
-            if (comparator.compare(toElement, elementData.get(i)) <= 0) {
-                break;
-            }
-            subset.add(elementData.get(i));
-        }
-        return subset;
+        TreeSet<E> tailSet = (TreeSet<E>) tailSet(fromElement);
+        TreeSet<E> headSet = (TreeSet<E>) headSet(toElement);
+        tailSet.retainAll(headSet);
+        return tailSet;
     }
 
     @Override
@@ -76,14 +53,11 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         if (comparator == null) {
             throw new UnsupportedOperationException("comparator is null");
         }
-        TreeSet<E> subset = new TreeSet<>(comparator);
-        for (int i = 0; i < elementData.size(); i++) {
-            if (comparator.compare(toElement, elementData.get(i)) <= 0) {
-                break;
-            }
-            subset.add(elementData.get(i));
+        int to = Collections.binarySearch(elementData, toElement, comparator);
+        if (to < 0) {
+            to = -1 * to - 1;
         }
-        return subset;
+        return new TreeSet<>(elementData.subList(0, to));
     }
 
     @Override
@@ -91,16 +65,11 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
         if (comparator == null) {
             throw new UnsupportedOperationException("comparator is null");
         }
-//     :NOTE:   Collections.binarySearch()
-//     :NOTE:   List.subList()
-        TreeSet<E> subset = new TreeSet<>(comparator);
-        for (int i = elementData.size() - 1; i >= 0; i--) {
-            if (comparator.compare(fromElement, elementData.get(i)) > 0) {
-                break;
-            }
-            subset.add(elementData.get(i));
+        int from = Collections.binarySearch(elementData, fromElement, comparator);
+        if (from < 0) {
+            from = -1 * from - 1;
         }
-        return subset;
+        return new TreeSet<>(elementData.subList(from, elementData.size()));
     }
 
     @Override
