@@ -38,9 +38,6 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
 
     @Override
     public SortedSet<E> subSet(E fromElement, E toElement) {
-        if (comparator == null) {
-            throw new UnsupportedOperationException("comparator is null");
-        }
         if (comparator.compare(fromElement, toElement) > 0) {
             throw new IllegalArgumentException();
         }
@@ -49,9 +46,6 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
 
     @Override
     public SortedSet<E> headSet(E toElement) {
-        if (comparator == null) {
-            throw new UnsupportedOperationException("comparator is null");
-        }
         int to = Collections.binarySearch(elementData, toElement, comparator);
         if (to < 0) {
             to = -to - 1;
@@ -61,9 +55,6 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
 
     @Override
     public SortedSet<E> tailSet(E fromElement) {
-        if (comparator == null) {
-            throw new UnsupportedOperationException("comparator is null");
-        }
         int from = Collections.binarySearch(elementData, fromElement, comparator);
         if (from < 0) {
             from = -from - 1;
