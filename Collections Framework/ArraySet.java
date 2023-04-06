@@ -9,6 +9,7 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
     }
 
     public ArraySet(Collection<? extends E> c) {
+        // :NOTE: Comparator.naturalOrder()
         this(c, null);
     }
 
