@@ -1,25 +1,28 @@
-import GroupName;
-import Student;
-import StudentQuery;
-
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StudentDB implements StudentQuery {
+    // :NOTE: constant
+    private static final Comparator<Student> NAME_COMPARATOR =
+            Comparator.comparing(Student::getLastName)
+                    .thenComparing(Student::getFirstName).reversed()
+                    .thenComparing(Student::getId);
 
     @Override
     public List<String> getFirstNames(List<Student> students) {
-        return streamToList(getStream(students, Student::getFirstName));
+        return getCollect(students, Student::getFirstName);
     }
+
+    // :NOTE: dupcode getLastNames, getGroups, getFullNames
 
     @Override
     public List<String> getLastNames(List<Student> students) {
         return streamToList(getStream(students, Student::getLastName));
     }
-
     @Override
     public List<GroupName> getGroups(List<Student> students) {
         return streamToList(getStream(students, Student::getGroup));
@@ -30,19 +33,24 @@ public class StudentDB implements StudentQuery {
         return streamToList(getStream(students, s -> s.getFirstName() + " " + s.getLastName()));
     }
 
+    private static ArrayList<String> getCollect(List<Student> students, Function<Student, String> func) {
+        return students.stream().map(func).collect(Collectors.toCollection(ArrayList::new));
+    }
+
     @Override
     public Set<String> getDistinctFirstNames(List<Student> students) {
-        return getStream(students, Student::getFirstName)
+        return students.stream().map(Student::getFirstName)
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
     public String getMaxStudentFirstName(List<Student> students) {
         return students.stream()
-                .max(Comparator.comparing(Student::getId))
+                .max(Comparator.naturalOrder())
                 .map(Student::getFirstName).orElse("");
     }
 
+    // :NOTE: избавиться от кучи методов
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
         return streamToList(students.stream().sorted());
@@ -55,6 +63,7 @@ public class StudentDB implements StudentQuery {
 
     @Override
     public List<Student> findStudentsByFirstName(Collection<Student> students, String name) {
+        // :NOTE find(students, Student::getFirstName, name)
         return streamToList(sort(findStream(students, s -> s.getFirstName().equals(name))));
     }
 
@@ -70,13 +79,16 @@ public class StudentDB implements StudentQuery {
 
     @Override
     public Map<String, String> findStudentNamesByGroup(Collection<Student> students, GroupName group) {
-        return findByGroupStream(students, group)
-                .collect(Collectors.groupingBy(Student::getLastName,
-                        Collectors.collectingAndThen(Collectors.minBy(Comparator.comparing(Student::getFirstName)),
-                                (Optional<Student> s) -> s.isPresent() ? s.get().getFirstName(): "")));
+        return students.stream()
+                .filter(s -> Objects.equals(s.getGroup(), group))
+                .collect(Collectors.toUnmodifiableMap(
+                        Student::getLastName,
+                        Student::getFirstName,
+                        BinaryOperator.minBy(Comparator.naturalOrder())
+                ));
     }
 
-    private <T> Stream<T> getStream(List<Student> students, Function<Student, T> mapper){
+    private <T> Stream<T> getStream(List<Student> students, Function<Student, T> mapper) {
         return students.stream().map(mapper);
     }
 
@@ -85,16 +97,14 @@ public class StudentDB implements StudentQuery {
     }
 
     private Stream<Student> sort(Stream<Student> students) {
-        return students.sorted(Comparator.comparing(Student::getLastName)
-                .thenComparing(Student::getFirstName).reversed()
-                .thenComparing(Student::getId));
+        return students.sorted(NAME_COMPARATOR);
     }
 
-    private Stream<Student> findStream(Collection<Student> students, Predicate<Student> f){
+    private Stream<Student> findStream(Collection<Student> students, Predicate<Student> f) {
         return students.stream().filter(f);
     }
 
-    private Stream<Student> findByGroupStream(Collection<Student> students, GroupName group){
+    private Stream<Student> findByGroupStream(Collection<Student> students, GroupName group) {
         return findStream(students, s -> s.getGroup().equals(group));
     }
 }
