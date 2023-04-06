@@ -1,6 +1,6 @@
-import info.kgeorgiy.java.advanced.student.GroupName;
-import info.kgeorgiy.java.advanced.student.Student;
-import info.kgeorgiy.java.advanced.student.StudentQuery;
+import GroupName;
+import Student;
+import StudentQuery;
 
 import java.util.*;
 import java.util.function.Function;
