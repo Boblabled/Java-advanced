@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
+    public static final Comparator<Object> NATURAL_ORDER = Collections.reverseOrder().reversed()::compare;
     private final List<E> elementData;
     private final Comparator<? super E> comparator;
 
@@ -9,8 +10,7 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
     }
 
     public ArraySet(Collection<? extends E> c) {
-        // :NOTE: Comparator.naturalOrder()
-        this(c, null);
+        this(c, NATURAL_ORDER);
     }
 
     public ArraySet(Comparator<E> c) {
@@ -34,7 +34,7 @@ public class ArraySet<E> extends AbstractSet<E> implements SortedSet<E> {
 
     @Override
     public Comparator<? super E> comparator() {
-        return comparator;
+        return comparator == NATURAL_ORDER ? null : comparator;
     }
 
     @Override
