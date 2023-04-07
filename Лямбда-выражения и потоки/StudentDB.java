@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class StudentDB implements StudentQuery {
     private static final Comparator<Student> NAME_COMPARATOR =
@@ -21,6 +20,7 @@ public class StudentDB implements StudentQuery {
     public List<String> getLastNames(List<Student> students) {
         return get(students, Student::getLastName);
     }
+
     @Override
     public List<GroupName> getGroups(List<Student> students) {
         return get(students, Student::getGroup);
@@ -46,12 +46,12 @@ public class StudentDB implements StudentQuery {
 
     @Override
     public List<Student> sortStudentsById(Collection<Student> students) {
-        return sort(students.stream(), DEFAULT_COMPARATOR);
+        return sort(students, DEFAULT_COMPARATOR);
     }
 
     @Override
     public List<Student> sortStudentsByName(Collection<Student> students) {
-        return sort(students.stream(), NAME_COMPARATOR);
+        return sort(students, NAME_COMPARATOR);
     }
 
     @Override
@@ -84,11 +84,15 @@ public class StudentDB implements StudentQuery {
         return students.stream().map(func).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static List<Student> sort(Stream<Student> students, Comparator<Student> comparator) {
-        return students.sorted(comparator)
+    private static List<Student> sort(Collection<Student> students, Comparator<Student> comparator) {
+        return students.stream().sorted(comparator)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static <T> List<Student> find(Collection<Student> students, T param, Function<Student, T> f) {
-        return sort(students.stream().filter(s -> f.apply(s).equals(param)), NAME_COMPARATOR);
+        return students.stream()
+                .filter(s -> Objects.equals(f.apply(s), param))
+                .sorted(NAME_COMPARATOR)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
+}
