@@ -2,9 +2,9 @@
 Актуальная страница курса: https://www.kgeorgiy.info/courses/java-advanced/index.html \
 Лекции на [ютюбе](https://youtube.com/playlist?list=PLBAwg87wLtfI11gzB1dR6n705sC7zGvFW)
 #### Часть 1. Введение
-1. Ввод-вывод    [ДЗ-1](https://github.com/Boblabled/Java-advanced/blob/master/Ввод-вывод/Walk.java)
-2. Collections Framework    [ДЗ-2](https://github.com/Boblabled/Java-advanced/blob/master/Collections%20Framework/ArraySet.java)
-3. Лямбда-выражения и потоки	
+1. Ввод-вывод    [ДЗ-1](https://github.com/Boblabled/Java-advanced/blob/master/Ввод-вывод)
+2. Collections Framework    [ДЗ-2](https://github.com/Boblabled/Java-advanced/blob/master/Collections%20Framework)
+3. Лямбда-выражения и потоки	[ДЗ-3](https://github.com/Boblabled/Java-advanced/tree/master/Лямбда-выражения%20и%20потоки)
 4. Reflection
 5. Jar	
 6. Javadoc
